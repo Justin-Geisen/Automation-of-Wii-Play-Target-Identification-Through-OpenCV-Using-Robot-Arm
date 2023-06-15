@@ -35,4 +35,8 @@
     Issues: 
       1. AI will be difficult and long 
       2. never actually played so we cannot guarantee anything (we only watched gamemplay)
-
+      
+      
+6/15/23
+  1. Layed out plan to work on wii controller
+  2. AI HDMI in
