@@ -64,7 +64,7 @@ while(True):
 
 
 	# sorting detected contours
-	sorted(detectedContours)
+	# sorted(detectedContours)
 	# detectedContours.sort()
 	
 	# draw connecting line between objects	
