@@ -88,7 +88,9 @@ bgVarThreshold = 300
 bgDetectShadow = False
 obj_dectection = cv.createBackgroundSubtractorMOG2(bgHistory, bgVarThreshold, bgDetectShadow)
 
+# tracker = cv.legacy.TrackerMOSSE_create()
 tracker = cv.TrackerCSRT_create()
+# tracker = cv.TrackerKCF_create()
 
 # fps counter
 prev_frame_time = 0
