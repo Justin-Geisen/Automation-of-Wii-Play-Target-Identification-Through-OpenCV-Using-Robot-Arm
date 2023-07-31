@@ -37,7 +37,8 @@ def detectObj (frame):
 
 	for count in contours: 
 		cv.drawContours(frame, [count], -1, (0,0,255))
-		if cv.contourArea(count) > 3000:
+		area = cv.contourArea(count)
+		if area > 3000 and area < 27000:
 			x, y, w, h = cv.boundingRect(count)
 			topLeft = (x, y)
 			bottomRight = ( x + w, y + h)
@@ -62,7 +63,15 @@ def drawLine( detectedContours, index = 0, color = (0,0,0) ):
 			return drawLine(detectedContours, index + 1, color)
 	except:
 		return None
-	
+
+def drawCursor(frame, cursorBox):
+	cBoxTL = (int(cursorBox[0]), int(cursorBox[1]))
+	cBoxBR = (int(cursorBox[0] + cursorBox[2]), int(cursorBox[1] + cursorBox[3]))
+	cBoxCenter = (int((cBoxTL[0] +cBoxBR[0])/2), int((cBoxTL[1] + cBoxBR[1])/2))
+	cv.rectangle(frame, cBoxTL, cBoxBR, (255,0,0), 2, 1)
+	cv.drawMarker(frame, (cBoxCenter[0], cBoxCenter[1]), (255,0,0))
+	return cBoxCenter
+
 def dist(x,y):
     return math.hypot(y[0]-x[0],y[1]-x[1])
 
@@ -98,13 +107,14 @@ new_frame_time = 0
 frame_count = 0
 
 isCursorFound = False
+# isCursorFound = True
+returnSuccc = False
 
 while(True):
 	
 	# Capture the video frameq
 	ret, frame = vid.read()
 
-	returnSuccc = False
 	# find the Cursor
 	if not isCursorFound:
 		cursorReturn, cursorRectangle = findCursorTM(frame, template)
@@ -114,18 +124,14 @@ while(True):
 	else: 
 		returnSuccc, cursorBox = tracker.update(frame)
 
-	if returnSuccc:
-		cBoxTL = (int(cursorBox[0]), int(cursorBox[1]))
-		cBoxBR = (int(cursorBox[0] + cursorBox[2]), int(cursorBox[1] + cursorBox[3]))
-		cBoxCenter = (int((cBoxTL[0] +cBoxBR[0])/2), int((cBoxTL[1] + cBoxBR[1])/2))
-		cv.rectangle(frame, cBoxTL, cBoxBR, (255,0,0), 2, 1)
-		cv.drawMarker(frame, (cBoxCenter[0], cBoxCenter[1]), (255,0,0))
-		cv.putText(frame, "Tracking cursor", (100,80), cv.FONT_HERSHEY_SIMPLEX, 0.75,(0,255,0),2)
+	if returnSuccc and isCursorFound:
+		cursorCenter = drawCursor(frame, cursorBox)
+		cv.putText(frame, "Tracking cursor", (70,80), cv.FONT_HERSHEY_SIMPLEX, 0.75,(0,255,0),2)
 	else:
-		cv.putText(frame, "Tracking cursor failure", (100,80), cv.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+		cv.putText(frame, "Tracking cursor failure", (700,80), cv.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
 	# TODO: broken code, need to find solutions
-	# if isCursorFound: 
+	# if isCursorFound and returnSuccc: 
 	# 	# This is the area that we are interested in using
 	# 	detectedContours = detectObj(frame)
 
