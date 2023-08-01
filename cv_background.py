@@ -12,13 +12,7 @@ def findCursorTM(frame, template):
 	templateRes = cv.matchTemplate(grayFrame, grayTemplate, cv.TM_CCOEFF_NORMED)
 
 	_, maxVal, _, max_loc = cv.minMaxLoc(templateRes)
-	# print(maxVal)
-	if maxVal >= .7:
-		return True, (max_loc[0], max_loc[1], templateW, templateH)
-	else:
-		return False, (0,0,0,0)
-	# return foundLoc[0], foundLoc[1], templateW, templateH
-	# return pt, (pt[0] + templateW, pt[1] + templateH)
+	return maxVal, (max_loc[0], max_loc[1], templateW, templateH)
 
 
 def detectObj (frame):
@@ -67,9 +61,9 @@ def drawLine( detectedContours, index = 0, color = (0,0,0) ):
 def drawCursor(frame, cursorBox):
 	cBoxTL = (int(cursorBox[0]), int(cursorBox[1]))
 	cBoxBR = (int(cursorBox[0] + cursorBox[2]), int(cursorBox[1] + cursorBox[3]))
-	cBoxCenter = (int((cBoxTL[0] +cBoxBR[0])/2), int((cBoxTL[1] + cBoxBR[1])/2))
-	cv.rectangle(frame, cBoxTL, cBoxBR, (255,0,0), 2, 1)
-	cv.drawMarker(frame, (cBoxCenter[0], cBoxCenter[1]), (255,0,0))
+	cBoxCenter = (int((cBoxTL[0] + cBoxBR[0])/2), int((cBoxTL[1] + cBoxBR[1])/2))
+	cv.circle(frame, cBoxCenter, int(cursorBox[2]/4), (0,255,0), 4)
+	cv.drawMarker(frame, (cBoxCenter[0], cBoxCenter[1]), (0,255,0), cv.MARKER_TILTED_CROSS, 50, 4)
 	return cBoxCenter
 
 def dist(x,y):
@@ -117,8 +111,8 @@ while(True):
 
 	# find the Cursor
 	if not isCursorFound:
-		cursorReturn, cursorRectangle = findCursorTM(frame, template)
-		if cursorReturn :
+		cursorVal, cursorRectangle = findCursorTM(frame, template)
+		if cursorVal >= .75:
 			tracker.init(frame, cursorRectangle)
 			isCursorFound = True
 	else: 
@@ -126,9 +120,10 @@ while(True):
 
 	if returnSuccc and isCursorFound:
 		cursorCenter = drawCursor(frame, cursorBox)
-		cv.putText(frame, "Tracking cursor", (70,80), cv.FONT_HERSHEY_SIMPLEX, 0.75,(0,255,0),2)
+		cv.putText(frame, "Tracking cursor", (80,80), cv.FONT_HERSHEY_SIMPLEX, 0.75,(0,255,0),2)
 	else:
-		cv.putText(frame, "Tracking cursor failure", (700,80), cv.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
+		# isCursorFound = False
+		cv.putText(frame, "Tracking cursor failure", (80,80), cv.FONT_HERSHEY_SIMPLEX, 0.75,(0,0,255),2)
 
 	# TODO: broken code, need to find solutions
 	# if isCursorFound and returnSuccc: 
